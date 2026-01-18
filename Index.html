@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>Règles d’Or – Trading</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icons/icon-192.png" />
+  <style>
+    :root{
+      --bg:#0b1220; --card:#0f172a; --muted:#94a3b8; --text:#e2e8f0;
+      --accent:#22c55e; --danger:#ef4444; --line:#1f2a44;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:linear-gradient(180deg, #050a14, var(--bg));
+      color:var(--text);
+    }
+    header{
+      position:sticky; top:0; z-index:5;
+      background:rgba(11,18,32,0.9); backdrop-filter: blur(10px);
+      border-bottom:1px solid var(--line);
+      padding:16px 14px;
+    }
+    h1{margin:0 0 6px 0; font-size:18px}
+    .sub{margin:0; color:var(--muted); font-size:12px}
+    main{max-width:900px; margin:0 auto; padding:14px; display:grid; gap:12px}
+    .grid{display:grid; grid-template-columns: 1fr; gap:12px}
+    @media(min-width:860px){ .grid{grid-template-columns: 380px 1fr} }
+    .card{
+      background:rgba(15,23,42,0.75);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    }
+    label{display:block; color:var(--muted); font-size:12px; margin:10px 0 6px}
+    input, textarea, select{
+      width:100%;
+      padding:10px 10px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:#0a1326;
+      color:var(--text);
+      outline:none;
+    }
+    textarea{min-height:110px; resize:vertical}
+    .row{display:grid; grid-template-columns: 1fr 1fr; gap:10px}
+    .btns{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px}
+    button{
+      border:1px solid var(--line);
+      background:#0a1326;
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      transition: transform .04s ease;
+    }
+    button:active{transform:scale(0.98)}
+    .primary{background:rgba(34,197,94,0.15); border-color:rgba(34,197,94,0.4)}
+    .danger{background:rgba(239,68,68,0.12); border-color:rgba(239,68,68,0.35)}
+    .ghost{background:transparent}
+    .small{padding:7px 10px; font-size:12px}
+    .pill{
+      display:inline-flex; gap:6px; align-items:center;
+      padding:4px 10px; border-radius:999px;
+      border:1px solid var(--line);
+      color:var(--muted); font-size:12px;
+    }
+    .list{display:grid; gap:10px}
+    .rule{
+      display:grid; gap:8px;
+      padding:12px; border-radius:14px;
+      background:rgba(10,19,38,0.75);
+      border:1px solid var(--line);
+    }
+    .rule-top{display:flex; justify-content:space-between; gap:10px; align-items:flex-start}
+    .title{font-weight:700}
+    .meta{display:flex; gap:8px; flex-wrap:wrap}
+    .content{color:#d3dcee; line-height:1.35; white-space:pre-wrap}
+    .actions{display:flex; gap:8px; flex-wrap:wrap}
+    .pin{color:var(--accent)}
+    .muted{color:var(--muted)}
+    .footer{color:var(--muted); font-size:12px; text-align:center; padding:10px 0 25px}
+    .hint{color:var(--muted); font-size:12px; margin-top:8px}
+    .sep{height:1px; background:var(--line); margin:10px 0}
+  </style>
+</head>
+<body>
+<header>
+  <h1>Règles d’Or – Trading</h1>
+  <p class="sub">Ton carnet de règles (offline). Ajoute, épingle, recherche, export/import.</p>
+</header>
+
+<main>
+  <div class="grid">
+    <section class="card">
+      <div class="row">
+        <div>
+          <label for="search">Recherche</label>
+          <input id="search" placeholder="ex: news, EIA, breakout…" />
+        </div>
+        <div>
+          <label for="filterCat">Catégorie</label>
+          <select id="filterCat">
+            <option value="">Toutes</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="sep"></div>
+
+      <h2 style="margin:0 0 6px; font-size:14px;">Ajouter / Modifier</h2>
+
+      <label for="title">Titre</label>
+      <input id="title" placeholder="ex: Jamais entrer sur la 1re bougie de news" />
+
+      <div class="row">
+        <div>
+          <label for="category">Catégorie</label>
+          <input id="category" placeholder="ex: Oil, Gaz, US100, Général…" />
+        </div>
+        <div>
+          <label for="tag">Tag (optionnel)</label>
+          <input id="tag" placeholder="ex: News, Breakout, Risk…" />
+        </div>
+      </div>
+
+      <label for="text">Contenu</label>
+      <textarea id="text" placeholder="Écris ta règle ici…"></textarea>
+
+      <div class="btns">
+        <button class="primary" id="saveBtn">Enregistrer</button>
+        <button class="ghost" id="newBtn">Nouveau</button>
+        <button class="danger" id="deleteBtn" disabled>Supprimer</button>
+        <button class="ghost" id="pinBtn" disabled>Épingler</button>
+      </div>
+
+      <p class="hint">Astuce : commence par coller tes “règles d’or” (News, Breakout, Horaires, etc.).</p>
+
+      <div class="sep"></div>
+
+      <div class="btns">
+        <button class="small" id="exportBtn">Exporter (JSON)</button>
+        <button class="small" id="importBtn">Importer (JSON)</button>
+        <input type="file" id="importFile" accept="application/json" hidden />
+        <button class="small danger" id="wipeBtn">Tout effacer</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+        <h2 style="margin:0; font-size:14px;">Mes règles</h2>
+        <span class="pill"><span id="count">0</span> règles</span>
+      </div>
+      <div class="list" id="list" style="margin-top:10px;"></div>
+    </section>
+  </div>
+
+  <div class="footer">PWA locale • Données stockées sur ton appareil • v1</div>
+</main>
+
+<script>
+  const STORAGE_KEY = "regles_dor_trading_v1";
+  const $ = (id) => document.getElementById(id);
+
+  const state = {
+    rules: [],
+    selectedId: null,
+    filter: { q: "", cat: "" },
+    categories: new Set()
+  };
+
+  function uid() {
+    return Math.random().toString(16).slice(2) + Date.now().toString(16);
+  }
+
+  function load() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      state.rules = raw ? JSON.parse(raw) : seedRules();
+    } catch {
+      state.rules = seedRules();
+    }
+    rebuildCategories();
+    render();
+  }
+
+  function seedRules(){
+    // Tu peux supprimer ces exemples si tu veux.
+    return [
+      { id: uid(), title:"Jamais entrer sur la 1re bougie de news", category:"Général", tag:"News", text:"Attendre impulsion → pullback → validation.", pinned:true, createdAt: Date.now() },
+      { id: uid(), title:"Breakout valide", category:"Général", tag:"Breakout", text:"Clôture au-dessus du niveau + volume/impulsion + pullback qui tient.", pinned:false, createdAt: Date.now() }
+    ];
+  }
+
+  function save() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state.rules));
+    rebuildCategories();
+    render();
+  }
+
+  function rebuildCategories(){
+    state.categories = new Set(state.rules.map(r => r.category).filter(Boolean));
+    const sel = $("filterCat");
+    const current = sel.value;
+    sel.innerHTML = '<option value="">Toutes</option>' + [...state.categories].sort().map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join("");
+    sel.value = current;
+  }
+
+  function escapeHtml(s){
+    return String(s ?? "").replace(/[&<>"']/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[m]));
+  }
+
+  function filteredRules(){
+    const q = state.filter.q.trim().toLowerCase();
+    const cat = state.filter.cat;
+    return state.rules
+      .filter(r => !cat || r.category === cat)
+      .filter(r => {
+        if(!q) return true;
+        const hay = `${r.title} ${r.category} ${r.tag ?? ""} ${r.text}`.toLowerCase();
+        return hay.includes(q);
+      })
+      .sort((a,b) => (b.pinned - a.pinned) || (b.createdAt - a.createdAt));
+  }
+
+  function render(){
+    const rules = filteredRules();
+    $("count").textContent = rules.length;
+
+    const list = $("list");
+    if(rules.length === 0){
+      list.innerHTML = `<div class="muted">Aucune règle ne correspond.</div>`;
+      return;
+    }
+    list.innerHTML = rules.map(r => `
+      <div class="rule" data-id="${r.id}">
+        <div class="rule-top">
+          <div>
+            <div class="title">${escapeHtml(r.title)} ${r.pinned ? '<span class="pin">★</span>' : ''}</div>
+            <div class="meta">
+              ${r.category ? `<span class="pill">${escapeHtml(r.category)}</span>` : ''}
+              ${r.tag ? `<span class="pill">${escapeHtml(r.tag)}</span>` : ''}
+            </div>
+          </div>
+          <div class="actions">
+            <button class="small" data-action="edit">Éditer</button>
+            <button class="small" data-action="pin">${r.pinned ? "Désépingler" : "Épingler"}</button>
+          </div>
+        </div>
+        <div class="content">${escapeHtml(r.text)}</div>
+      </div>
+    `).join("");
+
+    list.querySelectorAll("button").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        const card = e.target.closest(".rule");
+        const id = card.dataset.id;
+        const action = e.target.dataset.action;
+        if(action === "edit") selectForEdit(id);
+        if(action === "pin") togglePin(id);
+      });
+    });
+  }
+
+  function clearForm(){
+    state.selectedId = null;
+    $("title").value = "";
+    $("category").value = "";
+    $("tag").value = "";
+    $("text").value = "";
+    $("deleteBtn").disabled = true;
+    $("pinBtn").disabled = true;
+    $("pinBtn").textContent = "Épingler";
+  }
+
+  function selectForEdit(id){
+    const r = state.rules.find(x => x.id === id);
+    if(!r) return;
+    state.selectedId = id;
+    $("title").value = r.title;
+    $("category").value = r.category;
+    $("tag").value = r.tag ?? "";
+    $("text").value = r.text;
+    $("deleteBtn").disabled = false;
+    $("pinBtn").disabled = false;
+    $("pinBtn").textContent = r.pinned ? "Désépingler" : "Épingler";
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function upsertRule(){
+    const title = $("title").value.trim();
+    const category = $("category").value.trim() || "Général";
+    const tag = $("tag").value.trim();
+    const text = $("text").value.trim();
+
+    if(!title || !text){
+      alert("Ajoute au moins un titre et un contenu 🙂");
+      return;
+    }
+
+    if(state.selectedId){
+      const r = state.rules.find(x => x.id === state.selectedId);
+      if(!r) return;
+      r.title = title; r.category = category; r.tag = tag || ""; r.text = text;
+    } else {
+      state.rules.push({
+        id: uid(), title, category, tag: tag || "", text,
+        pinned: false, createdAt: Date.now()
+      });
+    }
+    save();
+    clearForm();
+  }
+
+  function deleteSelected(){
+    if(!state.selectedId) return;
+    if(!confirm("Supprimer cette règle ?")) return;
+    state.rules = state.rules.filter(r => r.id !== state.selectedId);
+    save();
+    clearForm();
+  }
+
+  function togglePin(id){
+    const r = state.rules.find(x => x.id === id);
+    if(!r) return;
+    r.pinned = !r.pinned;
+    save();
+    if(state.selectedId === id){
+      $("pinBtn").textContent = r.pinned ? "Désépingler" : "Épingler";
+    }
+  }
+
+  function exportJson(){
+    const data = JSON.stringify({ version: 1, exportedAt: new Date().toISOString(), rules: state.rules }, null, 2);
+    const blob = new Blob([data], { type:"application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "regles-dor-trading-backup.json";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function importJsonFile(file){
+    const reader = new FileReader();
+    reader.onload = () => {
+      try{
+        const obj = JSON.parse(reader.result);
+        const rules = Array.isArray(obj.rules) ? obj.rules : (Array.isArray(obj) ? obj : null);
+        if(!rules) throw new Error("Format invalide");
+        // normalise
+        const cleaned = rules.map(r => ({
+          id: r.id || uid(),
+          title: String(r.title ?? "").trim(),
+          category: String(r.category ?? "Général").trim() || "Général",
+          tag: String(r.tag ?? "").trim(),
+          text: String(r.text ?? "").trim(),
+          pinned: Boolean(r.pinned),
+          createdAt: Number(r.createdAt ?? Date.now())
+        })).filter(r => r.title && r.text);
+
+        state.rules = cleaned;
+        save();
+        clearForm();
+        alert("Import OK ✅");
+      }catch(e){
+        alert("Import impossible : " + e.message);
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  function wipeAll(){
+    if(!confirm("Tout effacer ? (irréversible)")) return;
+    state.rules = [];
+    save();
+    clearForm();
+  }
+
+  // events
+  $("saveBtn").addEventListener("click", upsertRule);
+  $("newBtn").addEventListener("click", clearForm);
+  $("deleteBtn").addEventListener("click", deleteSelected);
+  $("pinBtn").addEventListener("click", () => { if(state.selectedId) togglePin(state.selectedId); });
+
+  $("search").addEventListener("input", (e) => { state.filter.q = e.target.value; render(); });
+  $("filterCat").addEventListener("change", (e) => { state.filter.cat = e.target.value; render(); });
+
+  $("exportBtn").addEventListener("click", exportJson);
+  $("importBtn").addEventListener("click", () => $("importFile").click());
+  $("importFile").addEventListener("change", (e) => {
+    const f = e.target.files?.[0];
+    if(f) importJsonFile(f);
+    e.target.value = "";
+  });
+  $("wipeBtn").addEventListener("click", wipeAll);
+
+  // Register SW
+  if("serviceWorker" in navigator){
+    window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+  }
+
+  load();
+</script>
+</body>
+</html>
