@@ -1,368 +1,180 @@
 <!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#0f172a" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f172a">
   <title>Règles d’Or – Trading</title>
-  <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="icon" href="icons/icon-192.png" />
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png">
+
   <style>
-    :root{
-      --bg:#0b1220; --card:#0f172a; --muted:#94a3b8; --text:#e2e8f0;
-      --accent:#22c55e; --danger:#ef4444; --line:#1f2a44;
-    }
-    *{box-sizing:border-box}
     body{
-      margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background:linear-gradient(180deg, #050a14, var(--bg));
-      color:var(--text);
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:#0b1220;
+      color:#e5e7eb;
     }
     header{
-      position:sticky; top:0; z-index:5;
-      background:rgba(11,18,32,0.9); backdrop-filter: blur(10px);
-      border-bottom:1px solid var(--line);
-      padding:16px 14px;
+      position:sticky;
+      top:0;
+      background:#020617;
+      padding:14px;
+      border-bottom:1px solid #1e293b;
     }
-    h1{margin:0 0 6px 0; font-size:18px}
-    .sub{margin:0; color:var(--muted); font-size:12px}
-    main{max-width:900px; margin:0 auto; padding:14px; display:grid; gap:12px}
-    .grid{display:grid; grid-template-columns: 1fr; gap:12px}
-    @media(min-width:860px){ .grid{grid-template-columns: 380px 1fr} }
+    h1{margin:0;font-size:18px}
+    .sub{margin:4px 0 0;font-size:12px;color:#94a3b8}
+    main{max-width:900px;margin:auto;padding:14px}
     .card{
-      background:rgba(15,23,42,0.75);
-      border:1px solid var(--line);
-      border-radius:14px;
+      background:#020617;
+      border:1px solid #1e293b;
+      border-radius:12px;
       padding:12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+      margin-bottom:12px;
     }
-    label{display:block; color:var(--muted); font-size:12px; margin:10px 0 6px}
-    input, textarea, select{
+    input,textarea{
       width:100%;
-      padding:10px 10px;
-      border-radius:12px;
-      border:1px solid var(--line);
-      background:#0a1326;
-      color:var(--text);
-      outline:none;
+      background:#020617;
+      border:1px solid #1e293b;
+      border-radius:10px;
+      padding:10px;
+      color:#e5e7eb;
     }
-    textarea{min-height:110px; resize:vertical}
-    .row{display:grid; grid-template-columns: 1fr 1fr; gap:10px}
-    .btns{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px}
+    textarea{min-height:90px}
     button{
-      border:1px solid var(--line);
-      background:#0a1326;
-      color:var(--text);
-      padding:10px 12px;
-      border-radius:12px;
+      background:#020617;
+      border:1px solid #1e293b;
+      border-radius:10px;
+      padding:10px;
+      color:#e5e7eb;
       cursor:pointer;
-      transition: transform .04s ease;
     }
-    button:active{transform:scale(0.98)}
-    .primary{background:rgba(34,197,94,0.15); border-color:rgba(34,197,94,0.4)}
-    .danger{background:rgba(239,68,68,0.12); border-color:rgba(239,68,68,0.35)}
-    .ghost{background:transparent}
-    .small{padding:7px 10px; font-size:12px}
-    .pill{
-      display:inline-flex; gap:6px; align-items:center;
-      padding:4px 10px; border-radius:999px;
-      border:1px solid var(--line);
-      color:var(--muted); font-size:12px;
-    }
-    .list{display:grid; gap:10px}
+    .primary{border-color:#22c55e;color:#22c55e}
+    .danger{border-color:#ef4444;color:#ef4444}
     .rule{
-      display:grid; gap:8px;
-      padding:12px; border-radius:14px;
-      background:rgba(10,19,38,0.75);
-      border:1px solid var(--line);
+      border:1px solid #1e293b;
+      border-radius:12px;
+      padding:10px;
+      margin-bottom:10px;
+      background:#020617;
     }
-    .rule-top{display:flex; justify-content:space-between; gap:10px; align-items:flex-start}
     .title{font-weight:700}
-    .meta{display:flex; gap:8px; flex-wrap:wrap}
-    .content{color:#d3dcee; line-height:1.35; white-space:pre-wrap}
-    .actions{display:flex; gap:8px; flex-wrap:wrap}
-    .pin{color:var(--accent)}
-    .muted{color:var(--muted)}
-    .footer{color:var(--muted); font-size:12px; text-align:center; padding:10px 0 25px}
-    .hint{color:var(--muted); font-size:12px; margin-top:8px}
-    .sep{height:1px; background:var(--line); margin:10px 0}
+    .meta{font-size:12px;color:#94a3b8}
+    .pin{color:#22c55e}
+    .content{white-space:pre-wrap;margin-top:6px}
   </style>
 </head>
+
 <body>
 <header>
   <h1>Règles d’Or – Trading</h1>
-  <p class="sub">Ton carnet de règles (offline). Ajoute, épingle, recherche, export/import.</p>
+  <p class="sub">Lis avant chaque trade. Discipline > Ego.</p>
 </header>
 
 <main>
-  <div class="grid">
-    <section class="card">
-      <div class="row">
-        <div>
-          <label for="search">Recherche</label>
-          <input id="search" placeholder="ex: news, EIA, breakout…" />
-        </div>
-        <div>
-          <label for="filterCat">Catégorie</label>
-          <select id="filterCat">
-            <option value="">Toutes</option>
-          </select>
-        </div>
-      </div>
 
-      <div class="sep"></div>
-
-      <h2 style="margin:0 0 6px; font-size:14px;">Ajouter / Modifier</h2>
-
-      <label for="title">Titre</label>
-      <input id="title" placeholder="ex: Jamais entrer sur la 1re bougie de news" />
-
-      <div class="row">
-        <div>
-          <label for="category">Catégorie</label>
-          <input id="category" placeholder="ex: Oil, Gaz, US100, Général…" />
-        </div>
-        <div>
-          <label for="tag">Tag (optionnel)</label>
-          <input id="tag" placeholder="ex: News, Breakout, Risk…" />
-        </div>
-      </div>
-
-      <label for="text">Contenu</label>
-      <textarea id="text" placeholder="Écris ta règle ici…"></textarea>
-
-      <div class="btns">
-        <button class="primary" id="saveBtn">Enregistrer</button>
-        <button class="ghost" id="newBtn">Nouveau</button>
-        <button class="danger" id="deleteBtn" disabled>Supprimer</button>
-        <button class="ghost" id="pinBtn" disabled>Épingler</button>
-      </div>
-
-      <p class="hint">Astuce : commence par coller tes “règles d’or” (News, Breakout, Horaires, etc.).</p>
-
-      <div class="sep"></div>
-
-      <div class="btns">
-        <button class="small" id="exportBtn">Exporter (JSON)</button>
-        <button class="small" id="importBtn">Importer (JSON)</button>
-        <input type="file" id="importFile" accept="application/json" hidden />
-        <button class="small danger" id="wipeBtn">Tout effacer</button>
-      </div>
-    </section>
-
-    <section class="card">
-      <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
-        <h2 style="margin:0; font-size:14px;">Mes règles</h2>
-        <span class="pill"><span id="count">0</span> règles</span>
-      </div>
-      <div class="list" id="list" style="margin-top:10px;"></div>
-    </section>
+  <div class="card">
+    <h3>Ajouter une règle</h3>
+    <input id="title" placeholder="Titre">
+    <input id="category" placeholder="Catégorie (Oil, Gaz, Général...)">
+    <textarea id="text" placeholder="Contenu"></textarea>
+    <button class="primary" onclick="addRule()">Enregistrer</button>
   </div>
 
-  <div class="footer">PWA locale • Données stockées sur ton appareil • v1</div>
+  <div class="card">
+    <h3>Mes règles</h3>
+    <div id="list"></div>
+  </div>
+
 </main>
 
 <script>
-  const STORAGE_KEY = "regles_dor_trading_v1";
-  const $ = (id) => document.getElementById(id);
+const KEY = "regles_dor_trading_v2";
 
-  const state = {
-    rules: [],
-    selectedId: null,
-    filter: { q: "", cat: "" },
-    categories: new Set()
-  };
-
-  function uid() {
-    return Math.random().toString(16).slice(2) + Date.now().toString(16);
+/* 🔐 RÈGLES PAR DÉFAUT (injectées automatiquement) */
+const DEFAULT_RULES = [
+  {
+    title:"RÈGLE MAÎTRE – AVANT CHAQUE TRADE",
+    category:"Général",
+    text:"• Pas de setup clair = PAS de trade\n• Contexte HTF → zone → structure → timing\n• SL défini AVANT l’entrée\n• News ou émotion = je ne trade pas\n• Je peux rater un trade, pas ma discipline",
+    pinned:true
+  },
+  {
+    title:"STOP TRADING – CONDITIONS D’ARRÊT",
+    category:"Général",
+    text:"J’arrête la session si :\n• 2 trades perdants d’affilée\n• 1 erreur de process\n• Stress / fatigue\n• Marché sale",
+    pinned:true
+  },
+  {
+    title:"CHECKLIST – BREAKOUT VALIDE",
+    category:"Général",
+    text:"1) Niveau clair\n2) Clôture réelle\n3) Impulsion\n4) Pullback\n5) Reprise\n❌ Sinon PAS de trade",
+    pinned:true
+  },
+  {
+    title:"OIL – SETUP BREAKOUT",
+    category:"Oil",
+    text:"Breakout + pullback\nSL sous le niveau\nRR min 1:1,5\nPas de news",
+    pinned:false
+  },
+  {
+    title:"GAZ – SETUP TENDANCE",
+    category:"Gaz",
+    text:"Tendance claire\nPullback propre\nTaille réduite",
+    pinned:false
   }
+];
 
-  function seedRules(){
-    return [
-      { id: uid(), title:"Jamais entrer sur la 1re bougie de news", category:"Général", tag:"News", text:"Attendre impulsion → pullback → validation.", pinned:true, createdAt: Date.now() },
-      { id: uid(), title:"Breakout valide", category:"Général", tag:"Breakout", text:"Clôture au-dessus du niveau + volume/impulsion + pullback qui tient.", pinned:false, createdAt: Date.now() }
-    ];
+function load(){
+  let data = localStorage.getItem(KEY);
+  if(!data){
+    localStorage.setItem(KEY, JSON.stringify(DEFAULT_RULES));
+    data = JSON.stringify(DEFAULT_RULES);
   }
+  window.rules = JSON.parse(data);
+  render();
+}
 
-  // Injecte tes règles "par défaut" UNE SEULE FOIS (sans doublons) dans le storage principal
-  function ensureDefaultRules(){
-    const flagKey = STORAGE_KEY + "_defaults_v1";
-    if (localStorage.getItem(flagKey) === "true") return;
+function save(){
+  localStorage.setItem(KEY, JSON.stringify(window.rules));
+  render();
+}
 
-    let current = [];
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      current = raw ? JSON.parse(raw) : [];
-      if (!Array.isArray(current)) current = [];
-    } catch {
-      current = [];
-    }
+function addRule(){
+  const t = title.value.trim();
+  const c = category.value.trim() || "Général";
+  const x = text.value.trim();
+  if(!t || !x){ alert("Titre + contenu requis"); return; }
+  window.rules.unshift({title:t,category:c,text:x,pinned:false});
+  title.value=""; category.value=""; text.value="";
+  save();
+}
 
-    const defaults = [
-      {
-        title: "RÈGLE MAÎTRE – AVANT CHAQUE TRADE",
-        category: "Général",
-        tag: "Fondamentaux",
-        text: "• Pas de setup clair = PAS de trade\n• Contexte HTF → zone → structure → timing\n• SL défini AVANT l’entrée\n• News ou émotion = je ne trade pas\n• Je peux rater un trade, pas ma discipline",
-        pinned: true
-      },
-      {
-        title: "STOP TRADING – CONDITIONS D’ARRÊT",
-        category: "Général",
-        tag: "Discipline",
-        text: "J’arrête la session si :\n• 2 trades perdants d’affilée\n• 1 erreur de process (entrée sans setup, SL déplacé, revenge)\n• Je sens stress / impatience / fatigue\n• Marché en range sale (mèches, fakeouts)\nObjectif : protéger mon mental + mon capital.",
-        pinned: true
-      },
-      {
-        title: "CHECKLIST – BREAKOUT VALIDE",
-        category: "Général",
-        tag: "Breakout",
-        text: "✅ 1) Niveau clair (HTF si possible)\n✅ 2) Clôture au-dessus/au-dessous (pas juste une mèche)\n✅ 3) Impulsion visible (range cassé net)\n✅ 4) Pullback sur le niveau\n✅ 5) Rejet/pattern + reprise dans le sens\n❌ Si pas de pullback propre → pas d’entrée.",
-        pinned: true
-      },
-      {
-        title: "OIL – SETUP A (BREAKOUT + PULLBACK)",
-        category: "Oil",
-        tag: "Setup",
-        text: "Contexte : H1/H4 dans le sens du trade.\nEntrée : après pullback sur niveau cassé + bougie de reprise.\nSL : sous le niveau + sous la mèche du pullback.\nTP : 1er objectif = prochain niveau / RR min 1:1,5.\nRègle : pas d’entrée si spread/volatilité news.",
-        pinned: false
-      },
-      {
-        title: "OIL – SETUP B (REJET DE RÉSISTANCE / RETOUR DANS RANGE)",
-        category: "Oil",
-        tag: "Reversal",
-        text: "Condition : résistance HTF + échec de cassure (mèche + clôture qui réintègre).\nEntrée : sur confirmation (structure + cassure du micro support en M5/M15).\nSL : au-dessus de la mèche.\nTP : milieu de range puis bas de range.\nInterdit : si tendance HTF forte contre toi.",
-        pinned: false
-      },
-      {
-        title: "GAZ – SETUP A (TREND CONTINUATION)",
-        category: "Gaz",
-        tag: "Setup",
-        text: "Contexte : tendance claire H1/H4.\nEntrée : pullback sur moyenne/nuage + reprise.\nSL : sous le dernier creux / au-delà du niveau.\nTP : niveaux précédents + gérer par paliers.\nNote : le gaz est nerveux → taille réduite.",
-        pinned: false
-      },
-      {
-        title: "GAZ – SETUP B (BREAKDOWN + PULLBACK)",
-        category: "Gaz",
-        tag: "Breakout",
-        text: "✅ Cassure d’un support clair (clôture)\n✅ Pullback qui échoue sous le support\n✅ Reprise baissière\nSL : au-dessus du pullback\nTP : prochain support / RR min 1:1,5\n⚠️ Si range sale → no trade.",
-        pinned: false
-      },
-      {
-        title: "US100 – SETUP A (BREAKOUT EN SESSION US)",
-        category: "US100",
-        tag: "Setup",
-        text: "Contexte : niveau H1/H4 + volatilité session US.\nEntrée : breakout + pullback + reprise.\nSL : sous le niveau + sous creux.\nTP : niveaux suivants / trailing si tendance.\nRègle : éviter les minutes autour des news majeures.",
-        pinned: false
-      },
-      {
-        title: "PLAN DE JOURNÉE – AVANT / PENDANT / APRÈS",
-        category: "Général",
-        tag: "Routine",
-        text: "AVANT :\n• Identifier tendance H4/H1\n• Tracer 3 niveaux clés max\n• Définir scénario A (bull) / B (bear)\n\nPENDANT :\n• 1 setup = 1 trade (pas de spam)\n• SL fixe, pas d’exception\n• Journaliser l’entrée (pourquoi, où, RR)\n\nAPRÈS :\n• Screenshot + note (erreur/process)\n• Stop si fatigue/émotion",
-        pinned: false
-      }
-    ];
+function render(){
+  list.innerHTML = "";
+  window.rules
+    .sort((a,b)=>b.pinned-a.pinned)
+    .forEach((r,i)=>{
+      const div = document.createElement("div");
+      div.className="rule";
+      div.innerHTML = `
+        <div class="title">${r.title} ${r.pinned?"<span class='pin'>★</span>":""}</div>
+        <div class="meta">${r.category}</div>
+        <div class="content">${r.text}</div>
+        <button onclick="togglePin(${i})">Épingler</button>
+        <button class="danger" onclick="removeRule(${i})">Supprimer</button>
+      `;
+      list.appendChild(div);
+    });
+}
 
-    const existingKeys = new Set(
-      current.map(r => (String(r.title || "").trim().toLowerCase() + "||" + String(r.category || "").trim().toLowerCase()))
-    );
+function togglePin(i){ window.rules[i].pinned=!window.rules[i].pinned; save(); }
+function removeRule(i){ if(confirm("Supprimer ?")){ window.rules.splice(i,1); save(); } }
 
-    const toAdd = [];
-    for (const d of defaults) {
-      const key = (d.title.trim().toLowerCase() + "||" + d.category.trim().toLowerCase());
-      if (!existingKeys.has(key)) {
-        toAdd.push({
-          id: uid(),
-          title: d.title,
-          category: d.category || "Général",
-          tag: d.tag || "",
-          text: d.text || "",
-          pinned: !!d.pinned,
-          createdAt: Date.now()
-        });
-      }
-    }
+load();
+</script>
 
-    if (toAdd.length > 0) {
-      current = [...toAdd, ...current];
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
-    }
-
-    localStorage.setItem(flagKey, "true");
-  }
-
-  function load() {
-    ensureDefaultRules();
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      state.rules = raw ? JSON.parse(raw) : seedRules();
-      if (!Array.isArray(state.rules)) state.rules = seedRules();
-    } catch {
-      state.rules = seedRules();
-    }
-    rebuildCategories();
-    render();
-  }
-
-  function save() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state.rules));
-    rebuildCategories();
-    render();
-  }
-
-  function rebuildCategories(){
-    state.categories = new Set(state.rules.map(r => r.category).filter(Boolean));
-    const sel = $("filterCat");
-    const current = sel.value;
-    sel.innerHTML = '<option value="">Toutes</option>' + [...state.categories].sort().map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join("");
-    sel.value = current;
-  }
-
-  function escapeHtml(s){
-    return String(s ?? "").replace(/[&<>"']/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[m]));
-  }
-
-  function filteredRules(){
-    const q = state.filter.q.trim().toLowerCase();
-    const cat = state.filter.cat;
-    return state.rules
-      .filter(r => !cat || r.category === cat)
-      .filter(r => {
-        if(!q) return true;
-        const hay = `${r.title} ${r.category} ${r.tag ?? ""} ${r.text}`.toLowerCase();
-        return hay.includes(q);
-      })
-      .sort((a,b) => (b.pinned - a.pinned) || (b.createdAt - a.createdAt));
-  }
-
-  function render(){
-    const rules = filteredRules();
-    $("count").textContent = rules.length;
-
-    const list = $("list");
-    if(rules.length === 0){
-      list.innerHTML = `<div class="muted">Aucune règle ne correspond.</div>`;
-      return;
-    }
-    list.innerHTML = rules.map(r => `
-      <div class="rule" data-id="${r.id}">
-        <div class="rule-top">
-          <div>
-            <div class="title">${escapeHtml(r.title)} ${r.pinned ? '<span class="pin">★</span>' : ''}</div>
-            <div class="meta">
-              ${r.category ? `<span class="pill">${escapeHtml(r.category)}</span>` : ''}
-              ${r.tag ? `<span class="pill">${escapeHtml(r.tag)}</span>` : ''}
-            </div>
-          </div>
-          <div class="actions">
-            <button class="small" data-action="edit">Éditer</button>
-            <button class="small" data-action="pin">${r.pinned ? "Désépingler" : "Épingler"}</button>
-          </div>
-        </div>
-        <div class="content">${escapeHtml(r.text)}</div>
-      </div>
-    `).join("");
-
-    list.querySelectorAll("button").forEach(btn => {
-      btn.addEventListener("click", (e) =>
+</body>
+</html>
