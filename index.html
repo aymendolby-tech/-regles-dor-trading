@@ -177,23 +177,132 @@
     return Math.random().toString(16).slice(2) + Date.now().toString(16);
   }
 
+  function seedRules(){
+    return [
+      { id: uid(), title:"Jamais entrer sur la 1re bougie de news", category:"Général", tag:"News", text:"Attendre impulsion → pullback → validation.", pinned:true, createdAt: Date.now() },
+      { id: uid(), title:"Breakout valide", category:"Général", tag:"Breakout", text:"Clôture au-dessus du niveau + volume/impulsion + pullback qui tient.", pinned:false, createdAt: Date.now() }
+    ];
+  }
+
+  // Injecte tes règles "par défaut" UNE SEULE FOIS (sans doublons) dans le storage principal
+  function ensureDefaultRules(){
+    const flagKey = STORAGE_KEY + "_defaults_v1";
+    if (localStorage.getItem(flagKey) === "true") return;
+
+    let current = [];
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      current = raw ? JSON.parse(raw) : [];
+      if (!Array.isArray(current)) current = [];
+    } catch {
+      current = [];
+    }
+
+    const defaults = [
+      {
+        title: "RÈGLE MAÎTRE – AVANT CHAQUE TRADE",
+        category: "Général",
+        tag: "Fondamentaux",
+        text: "• Pas de setup clair = PAS de trade\n• Contexte HTF → zone → structure → timing\n• SL défini AVANT l’entrée\n• News ou émotion = je ne trade pas\n• Je peux rater un trade, pas ma discipline",
+        pinned: true
+      },
+      {
+        title: "STOP TRADING – CONDITIONS D’ARRÊT",
+        category: "Général",
+        tag: "Discipline",
+        text: "J’arrête la session si :\n• 2 trades perdants d’affilée\n• 1 erreur de process (entrée sans setup, SL déplacé, revenge)\n• Je sens stress / impatience / fatigue\n• Marché en range sale (mèches, fakeouts)\nObjectif : protéger mon mental + mon capital.",
+        pinned: true
+      },
+      {
+        title: "CHECKLIST – BREAKOUT VALIDE",
+        category: "Général",
+        tag: "Breakout",
+        text: "✅ 1) Niveau clair (HTF si possible)\n✅ 2) Clôture au-dessus/au-dessous (pas juste une mèche)\n✅ 3) Impulsion visible (range cassé net)\n✅ 4) Pullback sur le niveau\n✅ 5) Rejet/pattern + reprise dans le sens\n❌ Si pas de pullback propre → pas d’entrée.",
+        pinned: true
+      },
+      {
+        title: "OIL – SETUP A (BREAKOUT + PULLBACK)",
+        category: "Oil",
+        tag: "Setup",
+        text: "Contexte : H1/H4 dans le sens du trade.\nEntrée : après pullback sur niveau cassé + bougie de reprise.\nSL : sous le niveau + sous la mèche du pullback.\nTP : 1er objectif = prochain niveau / RR min 1:1,5.\nRègle : pas d’entrée si spread/volatilité news.",
+        pinned: false
+      },
+      {
+        title: "OIL – SETUP B (REJET DE RÉSISTANCE / RETOUR DANS RANGE)",
+        category: "Oil",
+        tag: "Reversal",
+        text: "Condition : résistance HTF + échec de cassure (mèche + clôture qui réintègre).\nEntrée : sur confirmation (structure + cassure du micro support en M5/M15).\nSL : au-dessus de la mèche.\nTP : milieu de range puis bas de range.\nInterdit : si tendance HTF forte contre toi.",
+        pinned: false
+      },
+      {
+        title: "GAZ – SETUP A (TREND CONTINUATION)",
+        category: "Gaz",
+        tag: "Setup",
+        text: "Contexte : tendance claire H1/H4.\nEntrée : pullback sur moyenne/nuage + reprise.\nSL : sous le dernier creux / au-delà du niveau.\nTP : niveaux précédents + gérer par paliers.\nNote : le gaz est nerveux → taille réduite.",
+        pinned: false
+      },
+      {
+        title: "GAZ – SETUP B (BREAKDOWN + PULLBACK)",
+        category: "Gaz",
+        tag: "Breakout",
+        text: "✅ Cassure d’un support clair (clôture)\n✅ Pullback qui échoue sous le support\n✅ Reprise baissière\nSL : au-dessus du pullback\nTP : prochain support / RR min 1:1,5\n⚠️ Si range sale → no trade.",
+        pinned: false
+      },
+      {
+        title: "US100 – SETUP A (BREAKOUT EN SESSION US)",
+        category: "US100",
+        tag: "Setup",
+        text: "Contexte : niveau H1/H4 + volatilité session US.\nEntrée : breakout + pullback + reprise.\nSL : sous le niveau + sous creux.\nTP : niveaux suivants / trailing si tendance.\nRègle : éviter les minutes autour des news majeures.",
+        pinned: false
+      },
+      {
+        title: "PLAN DE JOURNÉE – AVANT / PENDANT / APRÈS",
+        category: "Général",
+        tag: "Routine",
+        text: "AVANT :\n• Identifier tendance H4/H1\n• Tracer 3 niveaux clés max\n• Définir scénario A (bull) / B (bear)\n\nPENDANT :\n• 1 setup = 1 trade (pas de spam)\n• SL fixe, pas d’exception\n• Journaliser l’entrée (pourquoi, où, RR)\n\nAPRÈS :\n• Screenshot + note (erreur/process)\n• Stop si fatigue/émotion",
+        pinned: false
+      }
+    ];
+
+    const existingKeys = new Set(
+      current.map(r => (String(r.title || "").trim().toLowerCase() + "||" + String(r.category || "").trim().toLowerCase()))
+    );
+
+    const toAdd = [];
+    for (const d of defaults) {
+      const key = (d.title.trim().toLowerCase() + "||" + d.category.trim().toLowerCase());
+      if (!existingKeys.has(key)) {
+        toAdd.push({
+          id: uid(),
+          title: d.title,
+          category: d.category || "Général",
+          tag: d.tag || "",
+          text: d.text || "",
+          pinned: !!d.pinned,
+          createdAt: Date.now()
+        });
+      }
+    }
+
+    if (toAdd.length > 0) {
+      current = [...toAdd, ...current];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
+    }
+
+    localStorage.setItem(flagKey, "true");
+  }
+
   function load() {
+    ensureDefaultRules();
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       state.rules = raw ? JSON.parse(raw) : seedRules();
+      if (!Array.isArray(state.rules)) state.rules = seedRules();
     } catch {
       state.rules = seedRules();
     }
     rebuildCategories();
     render();
-  }
-
-  function seedRules(){
-    // Tu peux supprimer ces exemples si tu veux.
-    return [
-      { id: uid(), title:"Jamais entrer sur la 1re bougie de news", category:"Général", tag:"News", text:"Attendre impulsion → pullback → validation.", pinned:true, createdAt: Date.now() },
-      { id: uid(), title:"Breakout valide", category:"Général", tag:"Breakout", text:"Clôture au-dessus du niveau + volume/impulsion + pullback qui tient.", pinned:false, createdAt: Date.now() }
-    ];
   }
 
   function save() {
@@ -256,220 +365,4 @@
     `).join("");
 
     list.querySelectorAll("button").forEach(btn => {
-      btn.addEventListener("click", (e) => {
-        const card = e.target.closest(".rule");
-        const id = card.dataset.id;
-        const action = e.target.dataset.action;
-        if(action === "edit") selectForEdit(id);
-        if(action === "pin") togglePin(id);
-      });
-    });
-  }
-
-  function clearForm(){
-    state.selectedId = null;
-    $("title").value = "";
-    $("category").value = "";
-    $("tag").value = "";
-    $("text").value = "";
-    $("deleteBtn").disabled = true;
-    $("pinBtn").disabled = true;
-    $("pinBtn").textContent = "Épingler";
-  }
-
-  function selectForEdit(id){
-    const r = state.rules.find(x => x.id === id);
-    if(!r) return;
-    state.selectedId = id;
-    $("title").value = r.title;
-    $("category").value = r.category;
-    $("tag").value = r.tag ?? "";
-    $("text").value = r.text;
-    $("deleteBtn").disabled = false;
-    $("pinBtn").disabled = false;
-    $("pinBtn").textContent = r.pinned ? "Désépingler" : "Épingler";
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
-
-  function upsertRule(){
-    const title = $("title").value.trim();
-    const category = $("category").value.trim() || "Général";
-    const tag = $("tag").value.trim();
-    const text = $("text").value.trim();
-
-    if(!title || !text){
-      alert("Ajoute au moins un titre et un contenu 🙂");
-      return;
-    }
-
-    if(state.selectedId){
-      const r = state.rules.find(x => x.id === state.selectedId);
-      if(!r) return;
-      r.title = title; r.category = category; r.tag = tag || ""; r.text = text;
-    } else {
-      state.rules.push({
-        id: uid(), title, category, tag: tag || "", text,
-        pinned: false, createdAt: Date.now()
-      });
-    }
-    save();
-    clearForm();
-  }
-
-  function deleteSelected(){
-    if(!state.selectedId) return;
-    if(!confirm("Supprimer cette règle ?")) return;
-    state.rules = state.rules.filter(r => r.id !== state.selectedId);
-    save();
-    clearForm();
-  }
-
-  function togglePin(id){
-    const r = state.rules.find(x => x.id === id);
-    if(!r) return;
-    r.pinned = !r.pinned;
-    save();
-    if(state.selectedId === id){
-      $("pinBtn").textContent = r.pinned ? "Désépingler" : "Épingler";
-    }
-  }
-
-  function exportJson(){
-    const data = JSON.stringify({ version: 1, exportedAt: new Date().toISOString(), rules: state.rules }, null, 2);
-    const blob = new Blob([data], { type:"application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "regles-dor-trading-backup.json";
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-
-  function importJsonFile(file){
-    const reader = new FileReader();
-    reader.onload = () => {
-      try{
-        const obj = JSON.parse(reader.result);
-        const rules = Array.isArray(obj.rules) ? obj.rules : (Array.isArray(obj) ? obj : null);
-        if(!rules) throw new Error("Format invalide");
-        // normalise
-        const cleaned = rules.map(r => ({
-          id: r.id || uid(),
-          title: String(r.title ?? "").trim(),
-          category: String(r.category ?? "Général").trim() || "Général",
-          tag: String(r.tag ?? "").trim(),
-          text: String(r.text ?? "").trim(),
-          pinned: Boolean(r.pinned),
-          createdAt: Number(r.createdAt ?? Date.now())
-        })).filter(r => r.title && r.text);
-
-        state.rules = cleaned;
-        save();
-        clearForm();
-        alert("Import OK ✅");
-      }catch(e){
-        alert("Import impossible : " + e.message);
-      }
-    };
-    reader.readAsText(file);
-  }
-
-  function wipeAll(){
-    if(!confirm("Tout effacer ? (irréversible)")) return;
-    state.rules = [];
-    save();
-    clearForm();
-  }
-
-  // events
-  $("saveBtn").addEventListener("click", upsertRule);
-  $("newBtn").addEventListener("click", clearForm);
-  $("deleteBtn").addEventListener("click", deleteSelected);
-  $("pinBtn").addEventListener("click", () => { if(state.selectedId) togglePin(state.selectedId); });
-
-  $("search").addEventListener("input", (e) => { state.filter.q = e.target.value; render(); });
-  $("filterCat").addEventListener("change", (e) => { state.filter.cat = e.target.value; render(); });
-
-  $("exportBtn").addEventListener("click", exportJson);
-  $("importBtn").addEventListener("click", () => $("importFile").click());
-  $("importFile").addEventListener("change", (e) => {
-    const f = e.target.files?.[0];
-    if(f) importJsonFile(f);
-    e.target.value = "";
-  });
-  $("wipeBtn").addEventListener("click", wipeAll);
-
-  // Register SW
-  if("serviceWorker" in navigator){
-    window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(()=>{}));
-  }
-
-  load();
-  [
-  {
-    "title": "RÈGLE MAÎTRE – AVANT CHAQUE TRADE",
-    "category": "Général",
-    "tag": "Fondamentaux",
-    "content": "• Pas de setup clair = PAS de trade\n• Contexte HTF → zone → structure → timing\n• SL défini AVANT l’entrée\n• News ou émotion = je ne trade pas\n• Je peux rater un trade, pas ma discipline",
-    "pinned": true
-  },
-  {
-    "title": "STOP TRADING – CONDITIONS D’ARRÊT",
-    "category": "Général",
-    "tag": "Discipline",
-    "content": "J’arrête la session si :\n• 2 trades perdants d’affilée\n• 1 erreur de process (entrée sans setup, SL déplacé, revenge)\n• Je sens stress / impatience / fatigue\n• Marché en range sale (mèches, fakeouts)\nObjectif : protéger mon mental + mon capital.",
-    "pinned": true
-  },
-  {
-    "title": "CHECKLIST – BREAKOUT VALIDE",
-    "category": "Général",
-    "tag": "Breakout",
-    "content": "✅ 1) Niveau clair (HTF si possible)\n✅ 2) Clôture au-dessus/au-dessous (pas juste une mèche)\n✅ 3) Impulsion visible (range cassé net)\n✅ 4) Pullback sur le niveau\n✅ 5) Rejet/pattern + reprise dans le sens\n❌ Si pas de pullback propre → pas d’entrée.",
-    "pinned": true
-  },
-  {
-    "title": "OIL – SETUP A (BREAKOUT + PULLBACK)",
-    "category": "Oil",
-    "tag": "Setup",
-    "content": "Contexte : H1/H4 dans le sens du trade.\nEntrée : après pullback sur niveau cassé + bougie de reprise.\nSL : sous le niveau + sous la mèche du pullback.\nTP : 1er objectif = prochain niveau / RR min 1:1,5.\nRègle : pas d’entrée si spread/volatilité news.",
-    "pinned": false
-  },
-  {
-    "title": "OIL – SETUP B (REJET DE RÉSISTANCE / RETOUR DANS RANGE)",
-    "category": "Oil",
-    "tag": "Reversal",
-    "content": "Condition : résistance HTF + échec de cassure (mèche + clôture qui réintègre).\nEntrée : sur confirmation (structure + cassure du micro support en M5/M15).\nSL : au-dessus de la mèche.\nTP : milieu de range puis bas de range.\nInterdit : si tendance HTF forte contre toi.",
-    "pinned": false
-  },
-  {
-    "title": "GAZ – SETUP A (TREND CONTINUATION)",
-    "category": "Gaz",
-    "tag": "Setup",
-    "content": "Contexte : tendance claire H1/H4.\nEntrée : pullback sur moyenne/nuage + reprise.\nSL : sous le dernier creux / au-delà du niveau.\nTP : niveaux précédents + gérer par paliers.\nNote : le gaz est nerveux → taille réduite.",
-    "pinned": false
-  },
-  {
-    "title": "GAZ – SETUP B (BREAKDOWN + PULLBACK)",
-    "category": "Gaz",
-    "tag": "Breakout",
-    "content": "✅ Cassure d’un support clair (clôture)\n✅ Pullback qui échoue sous le support\n✅ Reprise baissière\nSL : au-dessus du pullback\nTP : prochain support / RR min 1:1,5\n⚠️ Si range sale → no trade.",
-    "pinned": false
-  },
-  {
-    "title": "US100 – SETUP A (BREAKOUT EN SESSION US)",
-    "category": "US100",
-    "tag": "Setup",
-    "content": "Contexte : niveau H1/H4 + volatilité session US.\nEntrée : breakout + pullback + reprise.\nSL : sous le niveau + sous creux.\nTP : niveaux suivants / trailing si tendance.\nRègle : éviter les minutes autour des news majeures.",
-    "pinned": false
-  },
-  {
-    "title": "PLAN DE JOURNÉE – AVANT / PENDANT / APRÈS",
-    "category": "Général",
-    "tag": "Routine",
-    "content": "AVANT :\n• Identifier tendance H4/H1\n• Tracer 3 niveaux clés max\n• Définir scénario A (bull) / B (bear)\nPENDANT :\n• 1 setup = 1 trade (pas de spam)\n• SL fixe, pas d’exception\n• Journaliser l’entrée (pourquoi, où, RR)\nAPRÈS :\n• Screenshot + note (erreur/process)\n• Stop si fatigue/émotion",
-    "pinned": false
-  }
-]
-</script>
-</body>
-</html>
+      btn.addEventListener("click", (e) =>
